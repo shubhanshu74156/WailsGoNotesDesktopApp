@@ -1,10 +1,18 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { AppBar, Box, Container, Divider, IconButton, TextField, Toolbar } from '@mui/material';
-import React from 'react';
-import { Note } from '../types';
-import { getNoteBackgroundColor, getNoteTextColor } from '../utils/noteUtils';
-import ColorMenuPicker from './ColorPicker';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {
+  AppBar,
+  Box,
+  Divider,
+  IconButton,
+  TextField,
+  Toolbar,
+} from "@mui/material";
+import React from "react";
+import { Note } from "../types";
+import { getNoteBackgroundColor, getNoteTextColor } from "../utils/noteUtils";
+import ColorMenuPicker from "./ColorPicker";
+import TipTapEditor from "./TipTapEditor";
 
 interface NoteEditorProps {
   currentNote: Note;
@@ -12,76 +20,115 @@ interface NoteEditorProps {
   onBack: () => void;
 }
 
-const NoteEditor: React.FC<NoteEditorProps> = ({ 
-  currentNote, 
-  onUpdateNote, 
-  onBack 
+const NoteEditor: React.FC<NoteEditorProps> = ({
+  currentNote,
+  onUpdateNote,
+  onBack,
 }) => {
-  const bgColor = getNoteBackgroundColor(currentNote?.color || 'black');
-  const textColor = getNoteTextColor(currentNote?.color || 'black');
+  // Get colors based on note's color setting
+  const bgColor = getNoteBackgroundColor(currentNote?.color || "black");
+  const textColor = getNoteTextColor(currentNote?.color || "black");
 
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdateNote({ ...currentNote, color: event.target.value });
   };
 
+  const handleContentUpdate = (content: string) => {
+    onUpdateNote({ ...currentNote, content });
+  };
+
+  // Define approximate height for your AppBar
+  const appBarHeight = 64; // in pixels
+
   return (
-    <Box sx={{ 
-      height: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      bgcolor: bgColor,
-      color: textColor 
-    }}>
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: bgColor,
+        color: textColor,
+      }}
+    >
       {/* Top AppBar for editing */}
-      <AppBar position="static" elevation={0} sx={{ bgcolor: bgColor, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+      <AppBar
+        position="fixed"
+        elevation={0}
+        sx={{
+          bgcolor: bgColor,
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          zIndex: 2,
+        }}
+      >
         <Toolbar>
-          <IconButton edge="start" color="primary" onClick={onBack} sx={{ mr: 2, color: textColor }}>
+          <IconButton
+            edge="start"
+            color="primary"
+            onClick={onBack}
+            sx={{ mr: 2, color: textColor }}
+          >
             <ArrowBackIcon />
           </IconButton>
-          <TextField
-            variant="standard"
-            placeholder="Title"
-            value={currentNote?.title || ''}
-            onChange={(e) => onUpdateNote({ ...currentNote, title: e.target.value })}
-            fullWidth
-            InputProps={{
-              disableUnderline: true,
-              style: { fontSize: '24px', fontWeight: 'bold', color: textColor }
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              justifyContent: "left",
+              alignItems: "center", // vertically centers the children
             }}
-            sx={{ mb: 2 }}
-          />
-          
-          {/* Color Menu Picker instead of the dialog button */}
-          <ColorMenuPicker 
+          >
+            <TextField
+              variant="standard"
+              placeholder="Title"
+              value={currentNote?.title || ""}
+              onChange={(e) =>
+                onUpdateNote({ ...currentNote, title: e.target.value })
+              }
+              sx={{
+                width: "70%", // adjust width as needed
+              }}
+              InputProps={{
+                disableUnderline: true,
+                style: {
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: textColor,
+                  textAlign: "left", // ensures the text inside is left aligned
+                },
+              }}
+            />
+          </Box>
+
+          {/* Color Menu Picker */}
+          <ColorMenuPicker
             currentNote={currentNote}
             onColorChange={handleColorChange}
             textColor={textColor}
           />
-          
           <IconButton color="primary" sx={{ color: textColor }}>
             <MoreVertIcon />
           </IconButton>
         </Toolbar>
-        <Divider sx={{ my: 1, bgcolor: 'grey.700' }} />
+        <Divider sx={{ my: 1, bgcolor: "grey.700" }} />
       </AppBar>
 
-      {/* Note Editor */}
-      <Container sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', py: 2 }}>
-        <TextField
-          variant="standard"
-          placeholder="Start typing..."
-          value={currentNote?.content || ''}
-          onChange={(e) => onUpdateNote({ ...currentNote, content: e.target.value })}
-          fullWidth
-          multiline
-          minRows={10}
-          InputProps={{
-            disableUnderline: true,
-            style: { fontSize: '16px', color: textColor === '#ffffff' ? '#ccc' : textColor }
-          }}
-          sx={{ flexGrow: 1 }}
+      {/* Editor Content Area with padding to account for fixed elements */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          pt: `${appBarHeight + 16}px`, // add some extra spacing
+          pb: "100px", // space for the bottom toolbar and advanced features
+          overflow: "auto",
+          px: 2, // Add horizontal padding
+        }}
+      >
+        <TipTapEditor
+          currentNote={currentNote}
+          onUpdateContent={handleContentUpdate}
+          textColor={textColor}
+          bgColor={bgColor}
         />
-      </Container>
+      </Box>
     </Box>
   );
 };
