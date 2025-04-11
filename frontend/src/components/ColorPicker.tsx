@@ -53,7 +53,8 @@ const ColorMenuPicker: React.FC<ColorMenuPickerProps> = ({
             elevation: 0,
             sx: {
               overflow: 'visible',
-              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+              filter: 'drop-shadow(0px 2px 8px rgba(219, 204, 204, 0))',
+              background: "rgb(85, 78, 78)",
               mt: 1.5,
               padding: 2,
               '&::before': {
