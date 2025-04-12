@@ -8,7 +8,8 @@ import {
   TextField,
   Toolbar,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import { ConvertToPdf } from "../../wailsjs/go/main/App";
 import { Note } from "../types";
 import { getNoteBackgroundColor, getNoteTextColor } from "../utils/noteUtils";
 import ColorMenuPicker from "./ColorPicker";
@@ -28,15 +29,41 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   // Get colors based on note's color setting
   const bgColor = getNoteBackgroundColor(currentNote?.color || "black");
   const textColor = getNoteTextColor(currentNote?.color || "black");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdateNote({ ...currentNote, color: event.target.value });
   };
 
+  const handleExportClick = () => {
+    if (currentNote && currentNote.id) {
+      handleExportPdf(currentNote.id);
+    }
+    handleMenuClose();
+  };
+
   const handleContentUpdate = (content: string) => {
     onUpdateNote({ ...currentNote, content });
   };
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
 
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleExportPdf = (id: string) => {
+    if (id) {
+      ConvertToPdf(id)
+        .then(() => {
+          console.log("PDF generated successfully.");
+        })
+        .catch((err) => {
+          console.error("Error generating PDF:", err);
+        });
+    }
+  };
   // Define approximate height for your AppBar
   const appBarHeight = 64; // in pixels
 
@@ -105,7 +132,11 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             onColorChange={handleColorChange}
             textColor={textColor}
           />
-          <IconButton color="primary" sx={{ color: textColor }}>
+          <IconButton
+            color="primary"
+            sx={{ color: textColor }}
+            onClick={handleMenuOpen} // Add this line
+          >
             <MoreVertIcon />
           </IconButton>
         </Toolbar>
@@ -127,6 +158,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
           onUpdateContent={handleContentUpdate}
           textColor={textColor}
           bgColor={bgColor}
+          onExportPdf={() => handleExportPdf(currentNote.id)}
         />
       </Box>
     </Box>

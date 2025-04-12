@@ -4,9 +4,10 @@ import {
   Title as HeadingIcon,
   HorizontalRule as HorizontalRuleIcon,
   Image as ImageIcon,
+  PictureAsPdf as PdfIcon,
   TableChart as TableIcon,
-  FormatListNumbered as TaskListIcon
-} from '@mui/icons-material';
+  FormatListNumbered as TaskListIcon,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -17,21 +18,29 @@ import {
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
-  TextField
-} from '@mui/material';
-import { Editor } from '@tiptap/react';
-import React, { useState } from 'react';
-import { tableHTML } from '../utils/TipTapExtensions';
+  TextField,
+} from "@mui/material";
+import { Editor } from "@tiptap/react";
+import React, { useState } from "react";
+import { tableHTML } from "../utils/TipTapExtensions";
 
 interface AdvancedFeaturesDialProps {
   editor: Editor | null;
+  onExportPdf?: () => void;
 }
 
-const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({ editor }) => {
+const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({
+  editor,
+  onExportPdf,
+}) => {
   const [open, setOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<null | 'image' | 'heading'>(null);
-  const [imageUrl, setImageUrl] = useState('');
-  const [headingLevel, setHeadingLevel] = useState<'1' | '2' | '3' | '4' | '5' | '6'>('1');
+  const [dialogType, setDialogType] = useState<null | "image" | "heading">(
+    null
+  );
+  const [imageUrl, setImageUrl] = useState("");
+  const [headingLevel, setHeadingLevel] = useState<
+    "1" | "2" | "3" | "4" | "5" | "6"
+  >("1");
 
   if (!editor) {
     return null;
@@ -46,13 +55,13 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({ editor }) =
   };
 
   const handleImageDialogOpen = () => {
-    setDialogType('image');
-    setImageUrl('');
+    setDialogType("image");
+    setImageUrl("");
   };
 
   const handleHeadingDialogOpen = () => {
-    setDialogType('heading');
-    setHeadingLevel('1');
+    setDialogType("heading");
+    setHeadingLevel("1");
   };
 
   const handleDialogClose = () => {
@@ -62,52 +71,67 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({ editor }) =
   const insertImage = () => {
     if (imageUrl) {
       editor.chain().focus().setImage({ src: imageUrl }).run();
-      setImageUrl('');
+      setImageUrl("");
       setDialogType(null);
     }
   };
 
   const insertHeading = () => {
     const level = parseInt(headingLevel);
-    editor.chain().focus().toggleHeading({ level: parseInt(headingLevel) as any }).run();
+    editor
+      .chain()
+      .focus()
+      .toggleHeading({ level: parseInt(headingLevel) as any })
+      .run();
     setDialogType(null);
   };
 
   const actions = [
-    { 
-      icon: <HeadingIcon />, 
-      name: 'Heading', 
-      action: handleHeadingDialogOpen 
+    {
+      icon: <HeadingIcon />,
+      name: "Heading",
+      action: handleHeadingDialogOpen,
     },
-    { 
-      icon: <TaskListIcon />, 
-      name: 'Task List', 
-      action: () => editor.chain().focus().toggleTaskList().run() 
+    {
+      icon: <TaskListIcon />,
+      name: "Task List",
+      action: () => editor.chain().focus().toggleTaskList().run(),
     },
-    { 
-      icon: <TableIcon />, 
-      name: 'Table', 
-      action: () => editor.chain().focus().insertContent(tableHTML).run() 
+    {
+      icon: <TableIcon />,
+      name: "Table",
+      action: () => editor.chain().focus().insertContent(tableHTML).run(),
     },
-    { 
-      icon: <ImageIcon />, 
-      name: 'Image', 
-      action: handleImageDialogOpen 
+    {
+      icon: <ImageIcon />,
+      name: "Image",
+      action: handleImageDialogOpen,
     },
-    { 
-      icon: <HorizontalRuleIcon />, 
-      name: 'Horizontal Rule', 
-      action: () => editor.chain().focus().setHorizontalRule().run() 
+    {
+      icon: <HorizontalRuleIcon />,
+      name: "Horizontal Rule",
+      action: () => editor.chain().focus().setHorizontalRule().run(),
     },
-    { 
-      icon: <CodeBlockIcon />, 
-      name: 'Code Block', 
-      action: () => editor.chain().focus().toggleCodeBlock().run() 
+    {
+      icon: <CodeBlockIcon />,
+      name: "Code Block",
+      action: () => editor.chain().focus().toggleCodeBlock().run(),
     },
-    { 
-      icon: <ClearFormattingIcon />, 
-      name: 'Clear Formatting', 
-      action: () => editor.chain().focus().unsetAllMarks().clearNodes().run() 
+    {
+      icon: <ClearFormattingIcon />,
+      name: "Clear Formatting",
+      action: () => editor.chain().focus().unsetAllMarks().clearNodes().run(),
+    },
+    {
+      icon: <PdfIcon />,
+      name: "Convert to PDF",
+      action: () => {
+        // This should call a function that gets the current note ID
+        // and passes it to the ConvertToPdf function
+        if (editor && onExportPdf) {
+          onExportPdf();
+        }
+      },
     },
   ];
 
@@ -138,7 +162,7 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({ editor }) =
       </Box>
 
       {/* Image URL Dialog */}
-      <Dialog open={dialogType === 'image'} onClose={handleDialogClose}>
+      <Dialog open={dialogType === "image"} onClose={handleDialogClose}>
         <DialogTitle>Insert Image</DialogTitle>
         <DialogContent>
           <TextField
@@ -159,7 +183,7 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({ editor }) =
       </Dialog>
 
       {/* Heading Dialog */}
-      <Dialog open={dialogType === 'heading'} onClose={handleDialogClose}>
+      <Dialog open={dialogType === "heading"} onClose={handleDialogClose}>
         <DialogTitle>Insert Heading</DialogTitle>
         <DialogContent>
           <TextField
@@ -167,7 +191,11 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({ editor }) =
             fullWidth
             label="Heading Level"
             value={headingLevel}
-            onChange={(e) => setHeadingLevel(e.target.value as '1' | '2' | '3' | '4' | '5' | '6')}
+            onChange={(e) =>
+              setHeadingLevel(
+                e.target.value as "1" | "2" | "3" | "4" | "5" | "6"
+              )
+            }
             SelectProps={{
               native: true,
             }}
