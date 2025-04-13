@@ -1,0 +1,15 @@
+FROM golang:1.24-slim
+
+# Install system deps for wails
+RUN apt-get update && apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev pkg-config build-essential
+
+# Install Wails CLI
+RUN go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+WORKDIR /app
+
+# Copy code
+COPY . .
+
+# Build for Linux
+RUN wails build -platform linux/amd64
