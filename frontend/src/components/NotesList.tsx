@@ -52,7 +52,7 @@ const NotesList: React.FC<NotesListProps> = ({
   return (
     <Box
       sx={{
-        height: "100%",
+        // height: "100%",
         display: "flex",
         flexDirection: "column",
         bgcolor: "background.default",
