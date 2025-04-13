@@ -1,17 +1,21 @@
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DescriptionIcon from "@mui/icons-material/Description";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   AppBar,
   Box,
   Container,
   IconButton,
+  InputAdornment,
   SpeedDialIcon,
   Toolbar,
   Tooltip,
   Typography,
 } from "@mui/material";
 import SpeedDial from "@mui/material/SpeedDial";
-import React from "react";
+import TextField from "@mui/material/TextField";
+import { debounce } from "lodash";
+import React, { useMemo, useState } from "react";
 import { Note } from "../types";
 import NoteCard from "./NoteCard";
 
@@ -21,15 +25,30 @@ interface NotesListProps {
   onEditNote: (note: Note) => void;
   onDeleteNote: (id: string) => void;
   onOpenRecycleBin: () => void;
+  onSearch: (search: string) => void;
 }
 
 const NotesList: React.FC<NotesListProps> = ({
-  notes,
+  notes = [],
   onCreateNew,
   onEditNote,
   onDeleteNote,
   onOpenRecycleBin,
+  onSearch,
 }) => {
+  const [searchText, setSearchTest] = useState("");
+  const [listNotes, setListNotes] = useState<Note[]>(notes);
+  const debouncedSearch = useMemo(
+    () => debounce((value: string) => onSearch(value), 300),
+    [onSearch]
+  );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTest(value);
+    debouncedSearch(value);
+  };
+
   return (
     <Box
       sx={{
@@ -56,10 +75,47 @@ const NotesList: React.FC<NotesListProps> = ({
           <Typography
             variant="h5"
             component="div"
-            sx={{ flexGrow: 1, fontWeight: "bold", color: "text.primary" }}
+            sx={{ fontWeight: "bold", color: "text.primary" }}
           >
             All Notes
           </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box
+            component="form"
+            sx={{
+              "& > :not(style)": {
+                width: "25ch",
+                mr: 2,
+              },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              variant="outlined"
+              placeholder="Search"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+                sx: {
+                  height: 36, // Small height
+                  borderRadius: "999px", // Circular border
+                  paddingRight: 0,
+                },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "999px", // Circular border
+                  height: 36, // Control height
+                  fontSize: "0.875rem",
+                },
+              }}
+              onChange={handleSearchChange}
+            />
+          </Box>
           <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
             {notes.length} notes
           </Typography>
@@ -76,7 +132,7 @@ const NotesList: React.FC<NotesListProps> = ({
 
       {/* Notes Grid */}
       <Container sx={{ flexGrow: 1, p: 2 }}>
-        {notes.length === 0 ? (
+        {!notes || notes.length === 0 ? (
           <Box
             sx={{
               display: "flex",
@@ -86,7 +142,9 @@ const NotesList: React.FC<NotesListProps> = ({
             }}
           >
             <Typography variant="h6" color="text.secondary">
-              No notes yet. Create your first note!
+              {searchText
+                ? "No notes found matching your search"
+                : "No notes yet. Create your first note!"}
             </Typography>
           </Box>
         ) : (

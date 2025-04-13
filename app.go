@@ -15,6 +15,7 @@ import (
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"golang.org/x/net/html"
 )
 
 type Note struct {
@@ -133,15 +134,40 @@ func (a *App) RestoreNote(id string) {
 	a.saveNotes()
 }
 
+func extractTextFromHTML(htmlStr string) string {
+	doc, err := html.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		return "" // fallback if HTML is malformed
+	}
+	var text string
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.TextNode {
+			text += n.Data
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(doc)
+	return text
+}
+
+// Updated SearchNotes function
 func (a *App) SearchNotes(query string) []Note {
 	var result []Note
 	query = strings.ToLower(query)
+
 	for _, note := range a.notes {
-		if strings.Contains(strings.ToLower(note.Title), query) || strings.Contains(strings.ToLower(note.Content), query) {
+		title := strings.ToLower(note.Title)
+		content := strings.ToLower(extractTextFromHTML(note.Content))
+
+		if strings.Contains(title, query) || strings.Contains(content, query) {
 			result = append(result, note)
 		}
 	}
-	return result
+
+	return result // This will be an empty slice if no matches found, not nil
 }
 
 func (a *App) ConvertToPdf(id string) error {

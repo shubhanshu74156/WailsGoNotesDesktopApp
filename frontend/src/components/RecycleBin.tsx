@@ -74,10 +74,11 @@ const RecycleBin: React.FC<RecycleBinProps> = ({
           <Typography
             variant="h5"
             component="div"
-            sx={{ flexGrow: 1, fontWeight: "bold", color: "text.primary" }}
+            sx={{ fontWeight: "bold", color: "text.primary" }}
           >
             Recycle Bin
           </Typography>
+          <Box sx={{ flexGrow: 1 }} />
           <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
             {deletedNotes.length} deleted notes
           </Typography>

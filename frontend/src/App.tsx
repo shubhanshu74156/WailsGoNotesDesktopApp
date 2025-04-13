@@ -7,6 +7,7 @@ import {
   GetNotes,
   RestoreNote,
   SaveNote,
+  SearchNotes,
   SoftDeleteNote,
 } from "../wailsjs/go/main/App";
 import NoteEditor from "./components/NoteEditor";
@@ -154,6 +155,19 @@ const App: React.FC = () => {
       });
   };
 
+  const handelSearch = (search: string) => {
+    SearchNotes(search)
+      .then((noteData) => {
+        // Ensure noteData is always an array
+        setNotes(noteData || []);
+      })
+      .catch((err) => {
+        console.error("Error searching notes:", err);
+        // Set to empty array on error rather than null
+        setNotes([]);
+      });
+  };
+
   const handleRestoreNote = (id: string) => {
     RestoreNote(id)
       .then(() => {
@@ -203,6 +217,7 @@ const App: React.FC = () => {
           onEditNote={handleEditNote}
           onDeleteNote={handleSoftDelete}
           onOpenRecycleBin={handleOpenRecycleBin}
+          onSearch={handelSearch}
         />
       )}
     </ThemeProvider>
