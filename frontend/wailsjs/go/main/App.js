@@ -10,6 +10,10 @@ export function DeleteNote(arg1) {
   return window['go']['main']['App']['DeleteNote'](arg1);
 }
 
+export function GetDeletedNotes() {
+  return window['go']['main']['App']['GetDeletedNotes']();
+}
+
 export function GetNotes() {
   return window['go']['main']['App']['GetNotes']();
 }
@@ -18,10 +22,18 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
+export function RestoreNote(arg1) {
+  return window['go']['main']['App']['RestoreNote'](arg1);
+}
+
 export function SaveNote(arg1) {
   return window['go']['main']['App']['SaveNote'](arg1);
 }
 
 export function SearchNotes(arg1) {
   return window['go']['main']['App']['SearchNotes'](arg1);
+}
+
+export function SoftDeleteNote(arg1) {
+  return window['go']['main']['App']['SoftDeleteNote'](arg1);
 }

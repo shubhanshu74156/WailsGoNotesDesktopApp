@@ -21,23 +21,9 @@ import {
   MenuItem,
   Tooltip,
 } from "@mui/material";
-import { Editor } from "@tiptap/react";
 import React, { useState } from "react";
-
-interface BasicFormattingToolbarProps {
-  editor: Editor | null;
-  textColor: string;
-  bgColor: string;
-}
-
-const textColors = [
-  "#3e7aff",
-  "#f44336",
-  "#4caf50",
-  "#ff9800",
-  "#000000",
-  "#ffffff",
-];
+import { BasicFormattingToolbarProps } from "../types/BasicFormattingToolbarProps";
+import { textColors } from "../utils/noteUtils";
 
 const BasicFormattingToolbar: React.FC<BasicFormattingToolbarProps> = ({
   editor,

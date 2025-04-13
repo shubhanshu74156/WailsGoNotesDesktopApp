@@ -20,14 +20,10 @@ import {
   SpeedDialIcon,
   TextField,
 } from "@mui/material";
-import { Editor } from "@tiptap/react";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { AdvancedFeaturesDialProps } from "../types/AdvancedFeaturesDialProps";
 import { tableHTML } from "../utils/TipTapExtensions";
-
-interface AdvancedFeaturesDialProps {
-  editor: Editor | null;
-  onExportPdf?: () => void;
-}
 
 const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({
   editor,
@@ -37,6 +33,8 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({
   const [dialogType, setDialogType] = useState<null | "image" | "heading">(
     null
   );
+  const [openImageDialog, setOpenImageDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [headingLevel, setHeadingLevel] = useState<
     "1" | "2" | "3" | "4" | "5" | "6"
@@ -57,6 +55,7 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({
   const handleImageDialogOpen = () => {
     setDialogType("image");
     setImageUrl("");
+    setOpenImageDialog(true); // ← THIS WAS MISSING
   };
 
   const handleHeadingDialogOpen = () => {
@@ -68,11 +67,40 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({
     setDialogType(null);
   };
 
-  const insertImage = () => {
-    if (imageUrl) {
+  const handleImageInsert = () => {
+    if (!editor) return;
+
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        const localStorageKey = `note_image_${Date.now()}`;
+        localStorage.setItem(localStorageKey, base64);
+        editor.chain().focus().setImage({ src: base64 }).run();
+        toast.success("Image inserted from file!");
+        resetImageDialog();
+      };
+      reader.readAsDataURL(selectedFile);
+    } else if (imageUrl.trim() !== "") {
       editor.chain().focus().setImage({ src: imageUrl }).run();
+      toast.success("Image inserted from URL!");
+      resetImageDialog();
+    } else {
+      toast.error("No image source provided.");
+    }
+  };
+
+  const resetImageDialog = () => {
+    setImageUrl("");
+    setSelectedFile(null);
+    setOpenImageDialog(false);
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
       setImageUrl("");
-      setDialogType(null);
     }
   };
 
@@ -150,7 +178,7 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({
             <SpeedDialAction
               key={action.name}
               icon={action.icon}
-              // tooltipTitle={action.name}
+              tooltipTitle={action.name}
               // tooltipOpen
               onClick={() => {
                 action.action();
@@ -162,23 +190,34 @@ const AdvancedFeaturesDial: React.FC<AdvancedFeaturesDialProps> = ({
       </Box>
 
       {/* Image URL Dialog */}
-      <Dialog open={dialogType === "image"} onClose={handleDialogClose}>
+      <Dialog open={openImageDialog} onClose={() => setOpenImageDialog(false)}>
         <DialogTitle>Insert Image</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
             label="Image URL"
-            type="url"
             fullWidth
             variant="outlined"
             value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
+            onChange={(e) => {
+              setImageUrl(e.target.value);
+              setSelectedFile(null);
+            }}
           />
+          <Button variant="outlined" component="label" fullWidth sx={{ mt: 2 }}>
+            Upload from File
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleFileSelect}
+            />
+          </Button>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={insertImage}>Insert</Button>
+          <Button onClick={() => setOpenImageDialog(false)}>Cancel</Button>
+          <Button onClick={handleImageInsert}>Insert</Button>
         </DialogActions>
       </Dialog>
 

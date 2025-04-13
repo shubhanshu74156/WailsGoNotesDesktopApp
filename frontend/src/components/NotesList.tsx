@@ -1,5 +1,5 @@
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DescriptionIcon from "@mui/icons-material/Description";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   AppBar,
   Box,
@@ -7,17 +7,20 @@ import {
   IconButton,
   SpeedDialIcon,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import SpeedDial from "@mui/material/SpeedDial";
 import React from "react";
 import { Note } from "../types";
 import NoteCard from "./NoteCard";
+
 interface NotesListProps {
   notes: Note[];
   onCreateNew: () => void;
   onEditNote: (note: Note) => void;
   onDeleteNote: (id: string) => void;
+  onOpenRecycleBin: () => void;
 }
 
 const NotesList: React.FC<NotesListProps> = ({
@@ -25,6 +28,7 @@ const NotesList: React.FC<NotesListProps> = ({
   onCreateNew,
   onEditNote,
   onDeleteNote,
+  onOpenRecycleBin,
 }) => {
   return (
     <Box
@@ -48,7 +52,6 @@ const NotesList: React.FC<NotesListProps> = ({
         <Toolbar>
           <IconButton edge="start" color="primary" sx={{ mr: 2 }}>
             <DescriptionIcon fontSize="large" />
-            {/* You can use any icon here */}
           </IconButton>
           <Typography
             variant="h5"
@@ -60,30 +63,50 @@ const NotesList: React.FC<NotesListProps> = ({
           <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
             {notes.length} notes
           </Typography>
-          <IconButton color="primary">
+          <Tooltip title="Recycle Bin">
+            <IconButton color="primary" onClick={onOpenRecycleBin}>
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Tooltip>
+          {/* <IconButton color="primary">
             <MoreVertIcon />
-          </IconButton>
+          </IconButton> */}
         </Toolbar>
       </AppBar>
 
       {/* Notes Grid */}
-      <Container sx={{ flexGrow: 1, backgroundColor: "black" }}>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-            gap: 2,
-          }}
-        >
-          {notes.map((note) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              onEdit={onEditNote}
-              onDelete={onDeleteNote}
-            />
-          ))}
-        </Box>
+      <Container sx={{ flexGrow: 1, p: 2 }}>
+        {notes.length === 0 ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "70vh",
+            }}
+          >
+            <Typography variant="h6" color="text.secondary">
+              No notes yet. Create your first note!
+            </Typography>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+              gap: 2,
+            }}
+          >
+            {notes.map((note) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                onEdit={onEditNote}
+                onDelete={onDeleteNote}
+              />
+            ))}
+          </Box>
+        )}
       </Container>
 
       <Box
@@ -97,7 +120,7 @@ const NotesList: React.FC<NotesListProps> = ({
         }}
       >
         <SpeedDial
-          ariaLabel="SpeedDial basic example"
+          ariaLabel="Create new note"
           sx={{ position: "absolute", bottom: 16, right: 16 }}
           icon={<SpeedDialIcon />}
           onClick={onCreateNew}

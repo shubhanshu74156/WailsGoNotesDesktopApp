@@ -18,22 +18,50 @@ export const truncateContent = (content: string, maxLength = 80) => {
   return content.substring(0, maxLength) + "...";
 };
 
-// Function to format date
-export const formatDate = () => {
-  const date = new Date();
-  return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
-};
-
 // Get the background color for a note
-export const getNoteBackgroundColor = (color: string) => {
-  return (
-    noteColors[color as keyof typeof noteColors]?.bg || noteColors.black.bg
-  );
+export const getNoteBackgroundColor = (color: string): string => {
+  if (color && noteColors[color]) {
+    return noteColors[color].bg;
+  }
+  return noteColors.black.bg; // Default fallback
 };
 
 // Get the text color for a note
-export const getNoteTextColor = (color: string) => {
-  return (
-    noteColors[color as keyof typeof noteColors]?.text || noteColors.black.text
-  );
+export const getNoteTextColor = (color: string): string => {
+  if (color && noteColors[color]) {
+    return noteColors[color].text;
+  }
+  return noteColors.black.text; // Default fallback
 };
+
+export const formatDate = (dateString?: string): string => {
+  if (!dateString) return "Just now";
+
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return "Today";
+  } else if (diffDays === 1) {
+    return "Yesterday";
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`;
+  } else {
+    return date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+};
+
+export const textColors = [
+  "#3e7aff",
+  "#f44336",
+  "#4caf50",
+  "#ff9800",
+  "#000000",
+  "#ffffff",
+];

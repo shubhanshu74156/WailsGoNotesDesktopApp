@@ -1,5 +1,4 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   AppBar,
   Box,
@@ -132,13 +131,13 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             onColorChange={handleColorChange}
             textColor={textColor}
           />
-          <IconButton
+          {/* <IconButton
             color="primary"
             sx={{ color: textColor }}
             onClick={handleMenuOpen} // Add this line
           >
             <MoreVertIcon />
-          </IconButton>
+          </IconButton> */}
         </Toolbar>
         <Divider sx={{ my: 1, bgcolor: "grey.700" }} />
       </AppBar>

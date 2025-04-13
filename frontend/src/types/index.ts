@@ -3,6 +3,10 @@ export interface Note {
   title: string;
   content: string;
   color: string;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+  deleted: boolean;
 }
 
 // Define note colors

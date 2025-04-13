@@ -95,7 +95,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onEdit, onDelete }) => {
               : "rgba(0, 0, 0, 0.5)",
         }}
       >
-        {formatDate()}
+        {formatDate(note.updatedAt)}
       </Typography>
     </Card>
   );

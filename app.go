@@ -18,10 +18,14 @@ import (
 )
 
 type Note struct {
-	ID      string `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	Color   string `json:"color"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	Color     string `json:"color"`
+	Date      string `json:"date"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+	Deleted   bool   `json:"deleted"`
 }
 
 // App struct
@@ -61,17 +65,39 @@ func (a *App) saveNotes() {
 }
 
 func (a *App) GetNotes() []Note {
-	return a.notes
+	var activeNotes []Note
+	for _, note := range a.notes {
+		if !note.Deleted {
+			activeNotes = append(activeNotes, note)
+		}
+	}
+	return activeNotes
+}
+
+func (a *App) GetDeletedNotes() []Note {
+	var deletedNotes []Note
+	for _, note := range a.notes {
+		if note.Deleted {
+			deletedNotes = append(deletedNotes, note)
+		}
+	}
+	return deletedNotes
 }
 
 func (a *App) SaveNote(note Note) {
+	now := time.Now().Format(time.RFC3339)
 	for i, n := range a.notes {
 		if n.ID == note.ID {
+			note.CreatedAt = a.notes[i].CreatedAt // Preserve original created time
+			note.UpdatedAt = now
 			a.notes[i] = note
 			a.saveNotes()
 			return
 		}
 	}
+	note.CreatedAt = now
+	note.UpdatedAt = now
+	note.Deleted = false
 	a.notes = append(a.notes, note)
 	a.saveNotes()
 }
@@ -80,6 +106,27 @@ func (a *App) DeleteNote(id string) {
 	for i, n := range a.notes {
 		if n.ID == id {
 			a.notes = append(a.notes[:i], a.notes[i+1:]...)
+			break
+		}
+	}
+	a.saveNotes()
+}
+
+func (a *App) SoftDeleteNote(id string) {
+	for i, n := range a.notes {
+		if n.ID == id {
+			a.notes[i].Deleted = true
+			a.notes[i].UpdatedAt = time.Now().Format(time.RFC3339)
+			break
+		}
+	}
+	a.saveNotes()
+}
+func (a *App) RestoreNote(id string) {
+	for i, n := range a.notes {
+		if n.ID == id && n.Deleted {
+			a.notes[i].Deleted = false
+			a.notes[i].UpdatedAt = time.Now().Format(time.RFC3339)
 			break
 		}
 	}
@@ -137,7 +184,6 @@ func (a *App) ConvertToPdf(id string) error {
         </style>
     </head>
     <body>
-        <h1>{{.Title}}</h1>
         <div class="content">{{.Content | unescapeHTML}}</div>
     </body>
     </html>

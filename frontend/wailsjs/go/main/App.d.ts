@@ -6,10 +6,16 @@ export function ConvertToPdf(arg1:string):Promise<void>;
 
 export function DeleteNote(arg1:string):Promise<void>;
 
+export function GetDeletedNotes():Promise<Array<main.Note>>;
+
 export function GetNotes():Promise<Array<main.Note>>;
 
 export function Greet(arg1:string):Promise<string>;
 
+export function RestoreNote(arg1:string):Promise<void>;
+
 export function SaveNote(arg1:main.Note):Promise<void>;
 
 export function SearchNotes(arg1:string):Promise<Array<main.Note>>;
+
+export function SoftDeleteNote(arg1:string):Promise<void>;
