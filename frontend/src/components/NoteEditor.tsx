@@ -69,7 +69,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "100dvh",
         display: "flex",
         flexDirection: "column",
         bgcolor: bgColor,
