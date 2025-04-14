@@ -7,11 +7,12 @@ import {
   TextField,
   Toolbar,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ConvertToPdf } from "../../wailsjs/go/main/App";
 import { Note } from "../types";
 import { getNoteBackgroundColor, getNoteTextColor } from "../utils/noteUtils";
 import ColorMenuPicker from "./ColorPicker";
+import Stopwatch from "./StopWatch";
 import TipTapEditor from "./TipTapEditor";
 
 interface NoteEditorProps {
@@ -29,6 +30,16 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
   const bgColor = getNoteBackgroundColor(currentNote?.color || "black");
   const textColor = getNoteTextColor(currentNote?.color || "black");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval>;
+    if (isRunning) {
+      intervalId = setInterval(() => setTime((prev) => prev + 1), 10);
+    }
+    return () => clearInterval(intervalId);
+  }, [isRunning]);
 
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdateNote({ ...currentNote, color: event.target.value });
@@ -125,6 +136,17 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
             />
           </Box>
 
+          {/* {stop watch} */}
+          <Box sx={{ mx: 2 }}>
+            <Stopwatch
+              time={time}
+              isRunning={isRunning}
+              setTime={setTime}
+              setIsRunning={setIsRunning}
+              textColor={textColor}
+            />
+          </Box>
+
           {/* Color Menu Picker */}
           <ColorMenuPicker
             currentNote={currentNote}
@@ -158,6 +180,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
           textColor={textColor}
           bgColor={bgColor}
           onExportPdf={() => handleExportPdf(currentNote.id)}
+          isRunning={isRunning}
+          setIsRunning={setIsRunning}
         />
       </Box>
     </Box>
