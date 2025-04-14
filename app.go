@@ -159,6 +159,9 @@ func (a *App) SearchNotes(query string) []Note {
 	query = strings.ToLower(query)
 
 	for _, note := range a.notes {
+		if note.Deleted {
+			continue // Skip deleted notes early
+		}
 		title := strings.ToLower(note.Title)
 		content := strings.ToLower(extractTextFromHTML(note.Content))
 
