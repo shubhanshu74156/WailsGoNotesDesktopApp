@@ -12,6 +12,10 @@ body {
     sans-serif;
 }
 
+body::-webkit-scrollbar {
+  display: none;
+}
+
 @font-face {
     font-family: "Nunito";
     font-style: normal;
